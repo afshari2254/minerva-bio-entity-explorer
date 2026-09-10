@@ -104,6 +104,34 @@
     border-radius: 7px;
     font-weight: bold;
 }
+.bio-actions {
+    display: flex;
+    gap: 10px;
+    margin-top: 15px;
+}
+
+.bio-btn {
+    flex: 1;
+    padding: 10px;
+    border: none;
+    border-radius: 7px;
+    background: #1a237e;
+    color: white;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.bio-copy {
+    width: 100%;
+    margin-top: 10px;
+    padding: 10px;
+    border: 2px solid #1a237e;
+    border-radius: 7px;
+    background: white;
+    color: #1a237e;
+    font-weight: bold;
+    cursor: pointer;
+}
 `;
         document.head.appendChild(style);
 
@@ -320,6 +348,21 @@ instances.forEach(function (entity, index) {
     </select>
 
 </div>
+<div class="bio-actions">
+
+    <button id="bioUniProt" class="bio-btn">
+        UniProt
+    </button>
+
+    <button id="bioPubMed" class="bio-btn">
+        PubMed
+    </button>
+
+</div>
+
+<button id="bioCopy" class="bio-copy">
+    Copy Entity Information
+</button>
     `;
             var locationSelect =
     container.querySelector('#bioLocation');
@@ -351,6 +394,70 @@ locationSelect.onchange = function () {
             selected.y !== undefined
                 ? Math.round(selected.y)
                 : 'N/A';
+};
+            container.querySelector('#bioUniProt').onclick = function () {
+
+    window.open(
+        'https://www.uniprot.org/uniprotkb?query=' +
+        encodeURIComponent(selectedName)
+    );
+
+};
+            container.querySelector('#bioPubMed').onclick = function () {
+
+    window.open(
+        'https://pubmed.ncbi.nlm.nih.gov/?term=' +
+        encodeURIComponent(selectedName)
+    );
+
+};
+            container.querySelector('#bioCopy').onclick = function () {
+
+    var selectedIndex =
+        parseInt(locationSelect.value);
+
+    var selected =
+        instances[selectedIndex];
+
+    var selectedModelId =
+        selected.modelId ||
+        selected._modelId ||
+        'N/A';
+
+    var selectedX =
+        selected.x !== undefined
+            ? Math.round(selected.x)
+            : 'N/A';
+
+    var selectedY =
+        selected.y !== undefined
+            ? Math.round(selected.y)
+            : 'N/A';
+
+    var info =
+        'Name: ' + selectedName + '\n' +
+        'Type: ' + type + '\n' +
+        'MINERVA ID: ' + selected.id + '\n' +
+        'Model ID: ' + selectedModelId + '\n' +
+        'Position X: ' + selectedX + '\n' +
+        'Position Y: ' + selectedY + '\n' +
+        'Occurrences: ' + instances.length;
+
+    var temp =
+        document.createElement('textarea');
+
+    temp.value = info;
+
+    document.body.appendChild(temp);
+
+    temp.select();
+
+    document.execCommand('copy');
+
+    document.body.removeChild(temp);
+
+    this.innerHTML = '✓ Copied!';
+
 };
 
 };

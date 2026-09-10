@@ -140,44 +140,43 @@ result.innerHTML = `
     <b>Loading entities...</b>
 `;
 
-minervaProxy.project.data.getAllBioEntities()
-    .then(function (entities) {
+Promise.all([
+    minervaProxy.project.data.getAllBioEntities(),
+    minervaProxy.project.data.getModels()
+])
+.then(function (results) {
 
-        allEntities = entities;
-        minervaProxy.project.data.getModels()
-    .then(function (models) {
+    allEntities = results[0];
 
-        models.forEach(function (model) {
+    results[1].forEach(function (model) {
 
-            var id = String(
-                model.id ||
-                model._id ||
-                model.modelId
-            );
+        var id = String(
+            model.id ||
+            model._id ||
+            model.modelId
+        );
 
-            modelDict[id] =
-                model.name ||
-                model._name ||
-                ('Map ' + id);
-        });
-
+        modelDict[id] =
+            model.name ||
+            model._name ||
+            ('Map ' + id);
     });
 
-        input.disabled = false;
+    input.disabled = false;
 
-        result.innerHTML = `
-            <b>Ready.</b>
-            <p>${allEntities.length} entities loaded from MINERVA.</p>
-        `;
+    result.innerHTML = `
+        <b>Ready.</b>
+        <p>${allEntities.length} entities loaded from MINERVA.</p>
+    `;
 
-    })
-    .catch(function () {
+})
+.catch(function () {
 
-        result.innerHTML = `
-            <b>Could not load entities.</b>
-        `;
+    result.innerHTML = `
+        <b>Could not load entities.</b>
+    `;
 
-    });
+});
         // ===== STEP 3: SEARCH ENTITY =====
         input.oninput = function () {
 

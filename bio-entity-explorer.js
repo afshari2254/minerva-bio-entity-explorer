@@ -130,7 +130,7 @@
         `;
          // ===== STEP 2: LOAD ENTITIES FROM MINERVA =====
 var allEntities = [];
-
+var modelDict = {};
 var input = container.querySelector('#bioSearch');
 var result = container.querySelector('#bioResult');
 
@@ -144,6 +144,24 @@ minervaProxy.project.data.getAllBioEntities()
     .then(function (entities) {
 
         allEntities = entities;
+        minervaProxy.project.data.getModels()
+    .then(function (models) {
+
+        models.forEach(function (model) {
+
+            var id = String(
+                model.id ||
+                model._id ||
+                model.modelId
+            );
+
+            modelDict[id] =
+                model.name ||
+                model._name ||
+                ('Map ' + id);
+        });
+
+    });
 
         input.disabled = false;
 
@@ -204,7 +222,24 @@ minervaProxy.project.data.getAllBioEntities()
 
     });
 
+var locationOptions = '';
 
+instances.forEach(function (entity, index) {
+
+    var id = String(
+        entity.modelId ||
+        entity._modelId
+    );
+
+    var mapName =
+        modelDict[id] ||
+        ('Map ' + id);
+
+    locationOptions +=
+        '<option value="' + index + '">' +
+        mapName +
+        '</option>';
+});
     var first = instances[0];
 
     var type =
@@ -242,22 +277,22 @@ minervaProxy.project.data.getAllBioEntities()
 
             <div class="bio-info">
                 <small>MINERVA ID</small>
-                <b>${first.id}</b>
+               <b id="bioMinervaId">${first.id}</b>
             </div>
 
             <div class="bio-info">
                 <small>MODEL ID</small>
-                <b>${modelId}</b>
+                <b id="bioModelId">${modelId}</b>
             </div>
 
             <div class="bio-info">
                 <small>POSITION X</small>
-                <b>${x}</b>
+               <b id="bioX">${x}</b>
             </div>
 
             <div class="bio-info">
                 <small>POSITION Y</small>
-                <b>${y}</b>
+               <b id="bioY">${y}</b>
             </div>
 
         </div>
@@ -265,7 +300,59 @@ minervaProxy.project.data.getAllBioEntities()
         <div class="bio-count">
             Found in ${instances.length} location(s)
         </div>
+        <div style="margin-top:15px;">
+
+    <small style="color:#777;">
+        SELECT LOCATION
+    </small>
+
+    <select id="bioLocation"
+        style="
+            width:100%;
+            padding:10px;
+            margin-top:5px;
+            border:2px solid #1a237e;
+            border-radius:7px;
+            background:white;
+        ">
+
+        ${locationOptions}
+
+    </select>
+
+</div>
     `;
+            var locationSelect =
+    container.querySelector('#bioLocation');
+
+locationSelect.onchange = function () {
+
+    var selected =
+        instances[parseInt(this.value)];
+
+    var selectedModelId =
+        selected.modelId ||
+        selected._modelId ||
+        'N/A';
+
+    container.querySelector('#bioMinervaId')
+        .textContent = selected.id;
+
+    container.querySelector('#bioModelId')
+        .textContent = selectedModelId;
+
+    container.querySelector('#bioX')
+        .textContent =
+            selected.x !== undefined
+                ? Math.round(selected.x)
+                : 'N/A';
+
+    container.querySelector('#bioY')
+        .textContent =
+            selected.y !== undefined
+                ? Math.round(selected.y)
+                : 'N/A';
+};
 
 };
     };

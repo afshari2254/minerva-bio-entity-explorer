@@ -85,7 +85,38 @@
 
             </div>
         `;
+         // ===== STEP 2: LOAD ENTITIES FROM MINERVA =====
+var allEntities = [];
 
+var input = container.querySelector('#bioSearch');
+var result = container.querySelector('#bioResult');
+
+input.disabled = true;
+
+result.innerHTML = `
+    <b>Loading entities...</b>
+`;
+
+minervaProxy.project.data.getAllBioEntities()
+    .then(function (entities) {
+
+        allEntities = entities;
+
+        input.disabled = false;
+
+        result.innerHTML = `
+            <b>Ready.</b>
+            <p>${allEntities.length} entities loaded from MINERVA.</p>
+        `;
+
+    })
+    .catch(function () {
+
+        result.innerHTML = `
+            <b>Could not load entities.</b>
+        `;
+
+    });
     };
 
     if (typeof minervaDefine === 'function') {

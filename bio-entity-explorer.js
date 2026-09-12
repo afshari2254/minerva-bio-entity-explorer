@@ -148,6 +148,37 @@
     font-size: 15px;
     margin-bottom: 8px;
 }
+.pubmed-article {
+    margin-top: 10px;
+    padding: 12px;
+    background: white;
+    border: 1px solid #d1d9e6;
+    border-radius: 7px;
+}
+
+.pubmed-title {
+    color: #1a237e;
+    font-weight: bold;
+    font-size: 12px;
+    margin-bottom: 6px;
+}
+
+.pubmed-meta {
+    font-size: 10px;
+    color: #666;
+    line-height: 1.6;
+}
+
+.pubmed-open {
+    margin-top: 8px;
+    padding: 6px 10px;
+    border: none;
+    border-radius: 5px;
+    background: #1a237e;
+    color: white;
+    cursor: pointer;
+    font-size: 10px;
+}
 `;
         document.head.appendChild(style);
 
@@ -377,7 +408,7 @@ instances.forEach(function (entity, index) {
 </div>
 
 <div id="bioExternalInfo"></div>
-
+<div id="bioPubMedInfo"></div>
 <button id="bioCopy" class="bio-copy">
     Copy Entity Information
 </button>
@@ -513,12 +544,174 @@ var apiUrl =
         });
 
 };
-            container.querySelector('#bioPubMed').onclick = function () {
+           container.querySelector('#bioPubMed').onclick = function () {
 
-    window.open(
-        'https://pubmed.ncbi.nlm.nih.gov/?term=' +
-        encodeURIComponent(selectedName)
-    );
+    var pubmedInfo =
+        container.querySelector('#bioPubMedInfo');
+
+    pubmedInfo.innerHTML = `
+        <div class="bio-external">
+            Loading PubMed articles...
+        </div>
+    `;
+
+    var ncbiBase =
+        'https://' +
+        'eutils.ncbi.nlm.nih.gov/entrez/eutils/';
+
+    var searchTerm =
+        selectedName + '[Title/Abstract]';
+
+    var searchUrl =
+        ncbiBase +
+        'esearch.fcgi?db=pubmed' +
+        '&term=' + encodeURIComponent(searchTerm) +
+        '&retmode=json' +
+        '&retmax=3' +
+        '&sort=relevance';
+
+    fetch(searchUrl)
+
+        .then(function (response) {
+
+            if (!response.ok) {
+                throw new Error('PubMed search failed');
+            }
+
+            return response.json();
+        })
+
+        .then(function (searchData) {
+
+            var ids =
+                searchData.esearchresult.idlist;
+
+            if (!ids || ids.length === 0) {
+
+                pubmedInfo.innerHTML = `
+                    <div class="bio-external">
+                        No PubMed articles found.
+                    </div>
+                `;
+
+                return null;
+            }
+
+            var summaryUrl =
+                ncbiBase +
+                'esummary.fcgi?db=pubmed' +
+                '&id=' + ids.join(',') +
+                '&retmode=json';
+
+            return fetch(summaryUrl);
+        })
+
+        .then(function (response) {
+
+            if (!response) {
+                return null;
+            }
+
+            if (!response.ok) {
+                throw new Error('PubMed summary failed');
+            }
+
+            return response.json();
+        })
+
+        .then(function (summaryData) {
+
+            if (!summaryData) {
+                return;
+            }
+
+            var ids = summaryData.result.uids;
+
+            var html = `
+                <div class="bio-external">
+
+                    <div class="bio-external-title">
+                        PubMed Articles
+                    </div>
+            `;
+
+            ids.forEach(function (pmid, index) {
+
+                var article =
+                    summaryData.result[pmid];
+
+                var title =
+                    article.title || 'No title';
+
+                var journal =
+                    article.fulljournalname ||
+                    article.source ||
+                    'N/A';
+
+                var date =
+                    article.pubdate ||
+                    'N/A';
+
+                html += `
+                    <div class="pubmed-article">
+
+                        <div class="pubmed-title">
+                            ${index + 1}. ${title}
+                        </div>
+
+                        <div class="pubmed-meta">
+                            <b>Journal:</b> ${journal}
+                            <br>
+                            <b>Published:</b> ${date}
+                            <br>
+                            <b>PMID:</b> ${pmid}
+                        </div>
+
+                        <button
+                            class="pubmed-open"
+                            data-pmid="${pmid}">
+                            Open in PubMed
+                        </button>
+
+                    </div>
+                `;
+            });
+
+            html += `</div>`;
+
+            pubmedInfo.innerHTML = html;
+
+
+            pubmedInfo
+                .querySelectorAll('.pubmed-open')
+                .forEach(function (button) {
+
+                    button.onclick = function () {
+
+                        var pmid =
+                            this.getAttribute('data-pmid');
+
+                        window.open(
+                            'https://' +
+                            'pubmed.ncbi.nlm.nih.gov/' +
+                            pmid +
+                            '/'
+                        );
+
+                    };
+                });
+
+        })
+
+        .catch(function () {
+
+            pubmedInfo.innerHTML = `
+                <div class="bio-external">
+                    Could not load PubMed articles.
+                </div>
+            `;
+
+        });
 
 };
             container.querySelector('#bioCopy').onclick = function () {

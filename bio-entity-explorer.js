@@ -372,7 +372,7 @@ instances.forEach(function (entity, index) {
         </div>
 
         <div class="bio-count">
-            Found in ${instances.length} location(s)
+             ${instances.length} instance(s) found in the MINERVA project
         </div>
         <div style="margin-top:15px;">
 
@@ -448,6 +448,27 @@ locationSelect.onchange = function () {
 
     var externalInfo =
         container.querySelector('#bioExternalInfo');
+           if (String(type).toLowerCase() !== 'protein') {
+
+    externalInfo.innerHTML = `
+        <div class="bio-external">
+
+            <div class="bio-external-title">
+                UniProt
+            </div>
+
+            UniProt information is available for
+            <b>protein entities only.</b>
+
+            <br><br>
+
+            <b>Current entity type:</b> ${type}
+
+        </div>
+    `;
+
+    return;
+}
 
     externalInfo.innerHTML = `
         <div class="bio-external">

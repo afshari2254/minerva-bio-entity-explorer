@@ -567,7 +567,7 @@ var apiUrl =
         'esearch.fcgi?db=pubmed' +
         '&term=' + encodeURIComponent(searchTerm) +
         '&retmode=json' +
-        '&retmax=3' +
+        '&retmax=5' +
         '&sort=relevance';
 
     fetch(searchUrl)
@@ -631,8 +631,8 @@ var apiUrl =
                 <div class="bio-external">
 
                     <div class="bio-external-title">
-                        PubMed Articles
-                    </div>
+    Top 5 Relevant PubMed Articles
+</div>
             `;
 
             ids.forEach(function (pmid, index) {

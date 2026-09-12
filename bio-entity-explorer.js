@@ -193,9 +193,10 @@
                     id="bioSearch"
                     class="bio-search"
                     type="text"
+                     list="entitySuggestions"
                     placeholder="Search entity, for example TNF..."
                 >
-
+<datalist id="entitySuggestions"></datalist>
                 <div id="bioResult" class="bio-card">
                     <b>Ready.</b>
                     <p>Search for a biological entity.</p>
@@ -208,6 +209,8 @@ var allEntities = [];
 var modelDict = {};
 var input = container.querySelector('#bioSearch');
 var result = container.querySelector('#bioResult');
+        var suggestionList =
+    container.querySelector('#entitySuggestions');
 
 input.disabled = true;
 
@@ -222,6 +225,30 @@ Promise.all([
 .then(function (results) {
 
     allEntities = results[0];
+    var seenNames = new Set();
+
+allEntities.forEach(function (entity) {
+
+    var name = entity.name || '';
+
+    if (name && !seenNames.has(name)) {
+
+        seenNames.add(name);
+
+        var option =
+            document.createElement('option');
+
+        option.value = name;
+
+        option.label =
+            entity._type ||
+            entity.type ||
+            '';
+
+        suggestionList.appendChild(option);
+    }
+
+});
 
     results[1].forEach(function (model) {
 

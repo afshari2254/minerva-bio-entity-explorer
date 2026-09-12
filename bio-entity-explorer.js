@@ -132,6 +132,22 @@
     font-weight: bold;
     cursor: pointer;
 }
+.bio-external {
+    margin-top: 15px;
+    padding: 15px;
+    background: #eef3ff;
+    border-left: 5px solid #1a237e;
+    border-radius: 7px;
+    font-size: 12px;
+    line-height: 1.7;
+}
+
+.bio-external-title {
+    color: #1a237e;
+    font-weight: bold;
+    font-size: 15px;
+    margin-bottom: 8px;
+}
 `;
         document.head.appendChild(style);
 
@@ -360,6 +376,8 @@ instances.forEach(function (entity, index) {
 
 </div>
 
+<div id="bioExternalInfo"></div>
+
 <button id="bioCopy" class="bio-copy">
     Copy Entity Information
 </button>
@@ -395,12 +413,99 @@ locationSelect.onchange = function () {
                 ? Math.round(selected.y)
                 : 'N/A';
 };
-            container.querySelector('#bioUniProt').onclick = function () {
+       container.querySelector('#bioUniProt').onclick = function () {
 
-    window.open(
-        'https://www.uniprot.org/uniprotkb?query=' +
-        encodeURIComponent(selectedName)
-    );
+    var externalInfo =
+        container.querySelector('#bioExternalInfo');
+
+    externalInfo.innerHTML = `
+        <div class="bio-external">
+            Loading UniProt information...
+        </div>
+    `;
+
+    var apiUrl =
+        'https://rest.uniprot.org/uniprotkb/search?query=' +
+        encodeURIComponent(selectedName) +
+        '&format=tsv' +
+        '&fields=accession,protein_name,gene_primary,organism_name,length' +
+        '&size=1';
+
+    fetch(apiUrl)
+
+        .then(function (response) {
+
+            if (!response.ok) {
+                throw new Error('UniProt request failed');
+            }
+
+            return response.text();
+        })
+
+        .then(function (text) {
+
+            var lines = text.trim().split('\n');
+
+            if (lines.length < 2) {
+
+                externalInfo.innerHTML = `
+                    <div class="bio-external">
+                        No UniProt information found.
+                    </div>
+                `;
+
+                return;
+            }
+
+            var values = lines[1].split('\t');
+
+            var accession = values[0] || 'N/A';
+            var proteinName = values[1] || 'N/A';
+            var gene = values[2] || 'N/A';
+            var organism = values[3] || 'N/A';
+            var length = values[4] || 'N/A';
+
+            externalInfo.innerHTML = `
+
+                <div class="bio-external">
+
+                    <div class="bio-external-title">
+                        UniProt Information
+                    </div>
+
+                    <b>Accession:</b>
+                    ${accession}
+                    <br>
+
+                    <b>Protein:</b>
+                    ${proteinName}
+                    <br>
+
+                    <b>Gene:</b>
+                    ${gene}
+                    <br>
+
+                    <b>Organism:</b>
+                    ${organism}
+                    <br>
+
+                    <b>Sequence Length:</b>
+                    ${length}
+
+                </div>
+            `;
+
+        })
+
+        .catch(function () {
+
+            externalInfo.innerHTML = `
+                <div class="bio-external">
+                    Could not load UniProt information.
+                </div>
+            `;
+
+        });
 
 };
             container.querySelector('#bioPubMed').onclick = function () {

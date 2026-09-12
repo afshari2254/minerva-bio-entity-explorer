@@ -424,12 +424,17 @@ locationSelect.onchange = function () {
         </div>
     `;
 
-    var apiUrl =
-        'https://rest.uniprot.org/uniprotkb/search?query=' +
-        encodeURIComponent(selectedName) +
-        '&format=tsv' +
-        '&fields=accession,protein_name,gene_primary,organism_name,length' +
-        '&size=1';
+   var query =
+    'gene_exact:' + selectedName +
+    ' AND organism_name:"Homo sapiens"' +
+    ' AND reviewed:true';
+
+var apiUrl =
+    'https://rest.uniprot.org/uniprotkb/search?query=' +
+    encodeURIComponent(query) +
+    '&format=tsv' +
+    '&fields=accession,protein_name,gene_primary,organism_name,length' +
+    '&size=1';
 
     fetch(apiUrl)
 

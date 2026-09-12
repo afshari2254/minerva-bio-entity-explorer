@@ -240,11 +240,6 @@ allEntities.forEach(function (entity) {
 
         option.value = name;
 
-        option.label =
-            entity._type ||
-            entity.type ||
-            '';
-
         suggestionList.appendChild(option);
     }
 

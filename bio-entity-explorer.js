@@ -316,7 +316,11 @@ allEntities.forEach(function (entity) {
     }
 
 
-    var selectedName = matches[0].name;
+   var exactMatch = matches.find(function (entity) {
+    return (entity.name || '').toLowerCase() === searchText;
+});
+
+var selectedName = exactMatch ? exactMatch.name : matches[0].name;
 
 
     var instances = allEntities.filter(function (entity) {

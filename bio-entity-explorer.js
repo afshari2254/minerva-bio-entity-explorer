@@ -1,12 +1,13 @@
-(function () {
+(function () { // Run the plugin in an isolated and strict JavaScript scope.
     'use strict';
 
+    // Define the plugin name, version, and unique ID.
     var BioEntityExplorer = function () {
         this.name = 'Bio_Entity_Explorer';
         this.version = '1.0.0';
         this.id = 'bio_entity_explorer_v1';
     };
-
+// Provide the plugin metadata to MINERVA.
     BioEntityExplorer.prototype.getName = function () {
         return this.name;
     };
@@ -18,21 +19,22 @@
     BioEntityExplorer.prototype.getId = function () {
         return this.id;
     };
-
+// Initialize the plugin and connect it to MINERVA.
     BioEntityExplorer.prototype.register = function (minervaProxy) {
-
+// Get the UI container provided by MINERVA.
         var container = minervaProxy.element;
-
+// Create the CSS styles for the plugin interface.
         var style = document.createElement('style');
 
         style.innerHTML = `
+        // Style the main plugin container.
             .bio-wrapper {
                 font-family: 'Segoe UI', sans-serif;
                 padding: 20px;
                 background: #f5f7fb;
                 min-height: 500px;
             }
-
+// Style the plugin title.
             .bio-title {
                 background: #1a237e;
                 color: white;
@@ -42,7 +44,7 @@
                 font-weight: bold;
                 margin-bottom: 20px;
             }
-
+// Style the entity search box.
             .bio-search {
                 width: 100%;
                 box-sizing: border-box;
@@ -51,7 +53,7 @@
                 border-radius: 8px;
                 font-size: 15px;
             }
-
+// Style the main entity information card.
             .bio-card {
     margin-top: 20px;
     background: white;
@@ -60,13 +62,13 @@
     border-top: 5px solid #1a237e;
     box-shadow: 0 2px 8px rgba(0,0,0,0.1);
 }
-
+// Highlight the selected entity name.
 .bio-name {
     font-size: 22px;
     font-weight: bold;
     color: #1a237e;
 }
-
+// Display the biological entity type as a badge.
 .bio-type {
     display: inline-block;
     margin-top: 5px;
@@ -77,14 +79,14 @@
     font-size: 11px;
     font-weight: bold;
 }
-
+// Arrange the entity details in a two-column grid.
 .bio-grid {
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: 10px;
     margin-top: 20px;
 }
-
+// Style each entity detail box.
 .bio-info {
     background: #f5f7fb;
     padding: 10px;
@@ -96,7 +98,7 @@
     color: #777;
     font-size: 9px;
 }
-
+// Highlight the number of entity occurrences.
 .bio-count {
     margin-top: 15px;
     padding: 10px;
@@ -104,12 +106,13 @@
     border-radius: 7px;
     font-weight: bold;
 }
+// Arrange the external data buttons side by side.
 .bio-actions {
     display: flex;
     gap: 10px;
     margin-top: 15px;
 }
-
+// Style the UniProt and PubMed buttons.
 .bio-btn {
     flex: 1;
     padding: 10px;
@@ -120,7 +123,7 @@
     font-weight: bold;
     cursor: pointer;
 }
-
+// Style the copy information button.
 .bio-copy {
     width: 100%;
     margin-top: 10px;
@@ -132,6 +135,7 @@
     font-weight: bold;
     cursor: pointer;
 }
+// Style the external biological information section.
 .bio-external {
     margin-top: 15px;
     padding: 15px;
@@ -141,13 +145,14 @@
     font-size: 12px;
     line-height: 1.7;
 }
-
+// Style the external information title.
 .bio-external-title {
     color: #1a237e;
     font-weight: bold;
     font-size: 15px;
     margin-bottom: 8px;
 }
+// Style each PubMed article card.
 .pubmed-article {
     margin-top: 10px;
     padding: 12px;
@@ -155,20 +160,20 @@
     border: 1px solid #d1d9e6;
     border-radius: 7px;
 }
-
+// Highlight the PubMed article title.
 .pubmed-title {
     color: #1a237e;
     font-weight: bold;
     font-size: 12px;
     margin-bottom: 6px;
 }
-
+// Style the PubMed article metadata.
 .pubmed-meta {
     font-size: 10px;
     color: #666;
     line-height: 1.6;
 }
-
+// Style the button used to open the article in PubMed.
 .pubmed-open {
     margin-top: 8px;
     padding: 6px 10px;
@@ -180,8 +185,9 @@
     font-size: 10px;
 }
 `;
+        // Add the plugin styles to the page.
         document.head.appendChild(style);
-
+// Create the search box and its entity suggestion list.
         container.innerHTML = `
             <div class="bio-wrapper">
 
@@ -197,6 +203,7 @@
                     placeholder="Search entity, for example TNF..."
                 >
 <datalist id="entitySuggestions"></datalist>
+// Create the main area for displaying entity information.
                 <div id="bioResult" class="bio-card">
                     <b>Ready.</b>
                     <p>Search for a biological entity.</p>
@@ -587,7 +594,7 @@ var apiUrl =
         });
 
 };
-           container.querySelector('#bioPubMed').onclick = function () {
+           container.querySelector('#bioPubMed').onclick = function () { // Start the PubMed search when the user clicks the PubMed button.
 
     var pubmedInfo =
         container.querySelector('#bioPubMedInfo');
@@ -757,7 +764,7 @@ var apiUrl =
         });
 
 };
-            container.querySelector('#bioCopy').onclick = function () {
+            container.querySelector('#bioCopy').onclick = function () { // Start the copy action when the user clicks the Copy button.
 
     var selectedIndex =
         parseInt(locationSelect.value);
